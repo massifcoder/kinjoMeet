@@ -6,7 +6,7 @@ import { useRouter } from "next/router"
 import GetCaller from "../../components/meet/getCaller"
 
 export default function Meet() {
-    const router = useRouter();
+    // const router = useRouter();
     const [sideTool, setSideTool] = useState('home')
     const [gettingCall,setGettingCall] = useState(false);
     const [callRoom,setCallRoom] = useState('demo');
@@ -15,26 +15,26 @@ export default function Meet() {
     useEffect(()=>{
         const userName = localStorage.getItem("username");
         if(!userName){
-            router.push('/');
+            // router.push('/');
         }
 
-        const interval = setInterval(()=>{
-            fetch('/api/meet/checkCall',{method:"POST",body:JSON.stringify({'username':userName})})
-                .then(res=>{
-                    return res.json();
-                }).then(res=>{
-                    console.log(res);
-                    if(res.user){
-                        if(res.room !=null){
-                            setGettingCall(true);
-                            setCallRoom(res.room);
-                            setCaller(res.caller);
-                            clearInterval(interval);
-                        }
-                    }
-                    return res;
-                })
-        },1000000);
+        // const interval = setInterval(()=>{
+        //     fetch('/api/meet/checkCall',{method:"POST",body:JSON.stringify({'username':userName})})
+        //         .then(res=>{
+        //             return res.json();
+        //         }).then(res=>{
+        //             console.log(res);
+        //             if(res.user){
+        //                 if(res.room !=null){
+        //                     setGettingCall(true);
+        //                     setCallRoom(res.room);
+        //                     setCaller(res.caller);
+        //                     clearInterval(interval);
+        //                 }
+        //             }
+        //             return res;
+        //         })
+        // },1000000);
 
         return ()=>{
             clearInterval(interval);
