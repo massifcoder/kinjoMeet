@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react"
-import Header from "../../components/meet/header"
-import SideBar from "../../components/meet/sideBar"
-import MeetStarter from "../../components/meet/meetStarter"
-import { useRouter } from "next/router"
-import GetCaller from "../../components/meet/getCaller"
+import Header from "./meet/header"
+import SideBar from "./meet/sideBar"
+import MeetStarter from "./meet/meetStarter"
+// import { useRouter } from "next/router"
+import GetCaller from "./meet/getCaller"
 
-export default function Meet() {
+export default function Front() {
     // const router = useRouter();
     const [sideTool, setSideTool] = useState('home')
     const [gettingCall,setGettingCall] = useState(false);
     const [callRoom,setCallRoom] = useState('demo');
     const [caller,setCaller] = useState('dumb');
 
-    useEffect(()=>{
-        const userName = localStorage.getItem("username");
-        if(!userName){
+    // useEffect(()=>{
+        // const userName = localStorage.getItem("username");
+        // if(!userName){
             // router.push('/');
-        }
+        // }
 
         // const interval = setInterval(()=>{
         //     fetch('/api/meet/checkCall',{method:"POST",body:JSON.stringify({'username':userName})})
@@ -36,11 +36,11 @@ export default function Meet() {
         //         })
         // },1000000);
 
-        return ()=>{
-            clearInterval(interval);
-        }
+        // return ()=>{
+        //     clearInterval(interval);
+        // }
 
-    },[gettingCall])
+    // },[gettingCall])
 
     return (
         <div className="bg-[#1a1225] text-white min-h-screen w-screen h-fit">

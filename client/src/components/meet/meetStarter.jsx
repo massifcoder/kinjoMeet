@@ -1,54 +1,54 @@
 import { useRef, useState } from "react"
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 
 export default function MeetStarter() {
-    const router = useRouter();
+    // const router = useRouter();
     const mailRef = useRef();
     const [isValid, setValid] = useState(false);
     
     // UI Handling.
     const errorMailInput = (msg) => {
-        setValid(true);
-        setTimeout(() => {
-            setValid(false)
-            mailRef.current.value = '';
-        }, 3000);
-        mailRef.current.value = msg;
+    //     setValid(true);
+    //     setTimeout(() => {
+    //         setValid(false)
+    //         mailRef.current.value = '';
+    //     }, 3000);
+    //     mailRef.current.value = msg;
     }
     
 
     const handleCallNow = () => {
-        const mail = mailRef.current.value;
-        const username = localStorage.getItem("username");
-        const room = localStorage.getItem('token');
-        if(mail === username){
-            errorMailInput('You Enter Your Mail!');
-        }
-        else if (mail) {
-            // Fetch the api and check that user is online or not. If online then message him.
-            fetch('/api/meet/doCall',{method:"POST",body:JSON.stringify({from:username,to:mail,room:room})})
-                .then(res=>{
-                    return res.json();
-                })
-                .then(res=>{
-                    console.log(res);
-                    if(res.user === false){
-                        errorMailInput('No User Exist.');
-                    }
-                    else{
-                        if(res.avail){
-                            router.push(`/meet/d${room}?caller=${mail}`);
-                        }
-                        else{
-                            errorMailInput('Busy Another Call!.');
-                        }
-                    }
-                    return res;
-                })
-        }
-        else {
-            errorMailInput('Invalid Input')
-        }
+    //     const mail = mailRef.current.value;
+    //     const username = localStorage.getItem("username");
+    //     const room = localStorage.getItem('token');
+        // if(mail === username){
+        //     errorMailInput('You Enter Your Mail!');
+        // }
+        // else if (mail) {
+        //     // Fetch the api and check that user is online or not. If online then message him.
+        //     fetch('/api/meet/doCall',{method:"POST",body:JSON.stringify({from:username,to:mail,room:room})})
+        //         .then(res=>{
+        //             return res.json();
+        //         })
+        //         .then(res=>{
+        //             console.log(res);
+        //             if(res.user === false){
+        //                 errorMailInput('No User Exist.');
+        //             }
+        //             else{
+        //                 if(res.avail){
+        //                     router.push(`/meet/d${room}?caller=${mail}`);
+        //                 }
+        //                 else{
+        //                     errorMailInput('Busy Another Call!.');
+        //                 }
+        //             }
+        //             return res;
+        //         })
+        // }
+        // else {
+        //     errorMailInput('Invalid Input')
+        // }
     }
 
 
