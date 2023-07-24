@@ -51,11 +51,8 @@ export default function MeetStarter() {
         // }
     }
 
-
-
     return (
         <div className="w-full flex">
-            {/* Initializing Call */}
             <div className="w-1/2 flex items-center justify-center">
                 <div className="font-mono mt-16">
                     <h1 className="text-3xl font-sans font-bold">Nanda Meet Free For EveryOne.</h1>

@@ -28,13 +28,13 @@ export default function DoCaller(props) {
 
     return (
         <div className="w-full flex items-center justify-center">
-            <div className="w-full m-6 relative flex flex-col items-center justify-around border rounded-xl border-4 border-green-700 h-[420px]">
+            <div className="w-full m-6 relative flex flex-col items-center justify-around rounded-xl border-4 border-green-700 h-[420px]">
                 <h1>{props.heading}...</h1>
                 <div className="relative flex items-center justify-center">
                     <div className="border border-3 border-green-600 p-5 rounded-full relative z-20 bg-white">
                         <img src="/meet/calling.png" alt="imag" />
                     </div>
-                    <div className="border rounded-full border-2 border-green-600 animate-ping w-20 h-20 rounded-full absolute z-10"></div>
+                    <div className="border-2 border-green-600 animate-ping w-20 h-20 rounded-full absolute z-10"></div>
                 </div>
                 <div className="font-bold text-xl">
                     <h1 className="my-3">{props.caller}</h1>
