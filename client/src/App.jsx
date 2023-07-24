@@ -4,16 +4,16 @@ import Front from './components/front'
 import GetCall from './components/activity/getCall'
 import Extra from './components/extra';
 
-function App() {
+function App(props) {
 
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Front/>}/>
+        <Route path='/' element={<Front socket={props.socket}/>}/>
         <Route path='/mail' element={<Extra/>}/>
         <Route path='/account' element={<Extra/>}/>
         <Route path='/getCall' element={<GetCall/>}/>
-        <Route path='/mail' element={<Extra/>}/>
+        <Route path='/calender' element={<Extra/>}/>
         <Route path='/bell' element={<Extra/>}/>
       </Routes>
     </Router>

@@ -1,8 +1,11 @@
 const express = require('express');
+const cors = require('cors')
 const http = require('http');
 const socketIO = require('socket.io');
 
+
 const app = express();
+app.use(cors())
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
@@ -12,26 +15,51 @@ const io = socketIO(server, {
   }
 });
 
-// Socket.io connection handler
-io.on('connection', (socket) => {
-  console.log('A user connected');
+const onlineUsers = {};       // List of users online now.
+const onCallUsers = {};       // List of users on call or busy now.
 
-  // Example: Handling a custom 'message' event from the client
-  socket.on('client-message', (message) => {
-    console.log('Received message from client:', message);
 
-    // Broadcast the message to all connected clients (excluding the sender)
-    socket.broadcast.emit('server-message', message);
-  });
+io.on('connection', (socket) => {;
 
-  // Example: Handling the 'disconnect' event
-  socket.on('disconnect', () => {
+  console.log('A new user connected to server.')
+
+
+  socket.on("infoExchange",(req)=>{
+    const data = JSON.parse(req);
+    onlineUsers[data.mail] = {token:data.token,mail:socket.id};
+    console.log(onlineUsers)
+  })
+
+
+  socket.on("checkUser",(req)=>{
+    console.log(req);
+    const info = onlineUsers[req];
+    if(info==undefined){
+      socket.emit("userInfo",JSON.stringify({online:'false'}))
+    }
+    else if(onCallUsers[req]){
+      socket.emit("userInfo",JSON.stringify({online:'true',busy:'true'}));
+    }
+    else{
+      socket.emit("userInfo",JSON.stringify({online:'true',busy:'false'}));
+    }
+  })
+
+
+  socket.on('disconnect', (so) => {
     console.log('A user disconnected');
+    delete onlineUsers[socket.id];
+    console.log(onlineUsers)
   });
+
+
 });
 
-// Start the server
-const port = 5000; // Use the port you want to listen on
+
+
+
+
+const port = 5000;
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });

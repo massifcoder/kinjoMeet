@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react"
-import Header from "./meet/header"
-import SideBar from "./meet/sideBar"
-import MeetStarter from "./meet/meetStarter"
-import {socket} from "../socket"
-import GetCaller from "./meet/getCaller"
+import { useEffect } from "react"
+import Header from "./frontComp/header"
+import SideBar from "./frontComp/sideBar"
+import MeetStarter from "./frontComp/meetStarter"
 
-export default function Front() {
-
+export default function Front(props) {
 
 
     return (
@@ -14,7 +11,7 @@ export default function Front() {
             <Header />
             <div className="flex relative w-full h-fit">
                 <SideBar />
-                <MeetStarter/>
+                <MeetStarter socket={props.socket}/>
                 <div className="absolute w-[300px] right-10 top-10">
                     {/* <GetCaller callRoom={'checl'} setCallRoom={''} gettingCall={''} setGettingCall={''} heading={'Ringing'} caller={'a'}/> */}
                 </div>
