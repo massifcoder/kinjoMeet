@@ -1,11 +1,14 @@
-import { useRef, useState } from "react"
-// import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react"
+import DoCall from './doCall'
 
 export default function MeetStarter(props) {
     // const router = useRouter();
     const mailRef = useRef();
     const [isValid, setValid] = useState(false);
-    
+    const [doCall,setDoCall] = useState(false);
+    const [toCall,setToCall] = useState('')
+    const [otherId,setOtherId] = useState('adsf');
+
     // UI Handling.
     const errorMailInput = (msg) => {
         setValid(true);
@@ -17,24 +20,34 @@ export default function MeetStarter(props) {
     }
 
     const handleCallNow = () => {
-        const mail = mailRef.current.value;
-        console.log(mail);
-        const socket = props.socket;
-        socket.emit('checkUser',mail)
-        socket.on('userInfo',(req)=>{
-            req = JSON.parse(req);
-            if(req.online=='false'){
-                errorMailInput('Offline')
-            }
-            else{
-                if(req.busy=='true'){
-                    errorMailInput('Busy!')
+        if(mailRef && mailRef.current){
+            const mail = mailRef.current.value;
+            const socket = props.socket;
+            const name = 'lalu'
+            const caller = 'bajimail'
+            socket.emit('checkUser',JSON.stringify({mail,name,caller}))
+            socket.on('userInfo',(req)=>{
+                req = JSON.parse(req);
+                if(req.online=='false'){
+                    errorMailInput('Offline')
                 }
                 else{
-                    errorMailInput('Calling!')
+                    if(req.busy=='true'){
+                        errorMailInput('Busy!')
+                    }
+                    else{
+                        setToCall(mail);
+                        setOtherId(req.userId);
+                        console.log('User id of the receiver will be ',req.userId)
+                        setDoCall(true);
+                    }
                 }
-            }
-        })
+            })
+        }
+    }
+
+    if(doCall){
+        return <DoCall otherId={otherId} toCall={toCall} setDoCall={setDoCall} socket={props.socket}/>
     }
 
     return (

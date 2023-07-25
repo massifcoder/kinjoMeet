@@ -15,8 +15,8 @@ const io = socketIO(server, {
   }
 });
 
-const onlineUsers = {};       // List of users online now.
-const onCallUsers = {};       // List of users on call or busy now.
+const onlineUsers = {};
+const onCallUsers = {};
 
 
 io.on('connection', (socket) => {;
@@ -26,25 +26,39 @@ io.on('connection', (socket) => {;
 
   socket.on("infoExchange",(req)=>{
     const data = JSON.parse(req);
-    onlineUsers[data.mail] = {token:data.token,mail:socket.id};
+    onlineUsers[data.mail] = {token:data.token,id:socket.id};
     console.log(onlineUsers)
   })
 
 
   socket.on("checkUser",(req)=>{
-    console.log(req);
-    const info = onlineUsers[req];
+    req = JSON.parse(req);
+    console.log(onlineUsers)
+    const info = onlineUsers[req.mail];
     if(info==undefined){
       socket.emit("userInfo",JSON.stringify({online:'false'}))
     }
-    else if(onCallUsers[req]){
+    else if(onCallUsers[req.mail]){ //){
       socket.emit("userInfo",JSON.stringify({online:'true',busy:'true'}));
     }
     else{
-      socket.emit("userInfo",JSON.stringify({online:'true',busy:'false'}));
+      socket.emit("userInfo",JSON.stringify({online:'true',busy:'false',userId:info.id}));
+      const tk = info.id;
+      io.to(tk).emit('getCall',JSON.stringify({call:'true',room:socket.id,from:req.caller,name:req.name}));
     }
   })
 
+
+  socket.on('cancelCall',(req)=>{
+    const tk = req;
+    console.log('Cancelling call and sending info to ',req);
+    io.to(tk).emit('reject','true');
+  })
+
+  socket.on('answerCall',(req)=>{
+    const tk = req;
+    io.to(tk).emit('accept','true');
+  })
 
   socket.on('disconnect', (so) => {
     console.log('A user disconnected');
