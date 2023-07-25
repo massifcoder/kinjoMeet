@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import DoCall from './doCall'
 
 export default function MeetStarter(props) {
@@ -52,7 +52,7 @@ export default function MeetStarter(props) {
 
     return (
         <div className="w-full flex">
-            <div className="w-1/2 flex items-center justify-center">
+            <div className="flex items-center justify-center">
                 <div className="font-mono mt-16">
                     <h1 className="text-3xl font-sans font-bold">Nanda Meet Free For EveryOne.</h1>
                     <div className="font-sans my-12">

@@ -13,7 +13,7 @@ export default function MySelf() {
                 </div>
                 <div className="flex border-2 border-black p-2 rounded-full px-4">
                     <input className="outline outline-0" type="text" placeholder="Message..."/>
-                    <img src="/word/send.png" className="w-8"/>
+                    <img src="/send.png" className="w-8"/>
                 </div>
             </div>
         </div>

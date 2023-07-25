@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import Header from "./frontComp/header"
+// import Header from "./frontComp/header"
 import SideBar from "./frontComp/sideBar"
 import MeetStarter from "./frontComp/meetStarter"
 import GetCaller from "./frontComp/getCaller"
@@ -39,15 +39,11 @@ export default function Front(props) {
     },[])
 
     return (
-        <div className="bg-[#1a1225] text-white min-h-screen w-screen h-fit">
-            <Header />
-            <div className="flex relative w-full h-fit">
-                <SideBar />
-                <MeetStarter socket={props.socket}/>
-                {gettingCall?<div className="absolute w-[300px] right-10 top-10">
-                    <GetCaller socket={props.socket} callerMail={callerMail} callRoom={callRoom} setCallRoom={setCallRoom} gettingCall={gettingCall} setGettingCall={setGettingCall} heading={'Ringing'} caller={caller}/>
-                </div>:null}
-            </div>
-        </div>
+    <div className="relative w-1/2">
+        <MeetStarter socket={props.socket}/>
+        {gettingCall?<div className="absolute w-[300px] right-10 top-10">
+            <GetCaller socket={props.socket} callerMail={callerMail} callRoom={callRoom} setCallRoom={setCallRoom} gettingCall={gettingCall} setGettingCall={setGettingCall} heading={'Ringing'} caller={caller}/>
+        </div>:null}
+    </div>
     )
 }

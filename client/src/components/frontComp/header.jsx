@@ -1,14 +1,14 @@
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 export default function Header() {
     return (
         <div className="font-mono flex justify-between items-center p-6 pb-2">
-            <img alt="kjh" src={'./logo.png'} className="bg-white hover:scale-125 m-2 transition duration-500 ease-in-out" height={50} width={50} />
+            <img alt="kjh" src={'/logo.png'} className="bg-white hover:scale-125 m-2 transition duration-500 ease-in-out" height={50} width={50} />
             <div className="flex items-center justify-between w-full px-6">
                 <div className="text-black">
                     <div className="text-gray-400 text-sm hover:scale-125 transition duration-500 ease-in-out">Ongoing event</div>
                     <div className="text-xl text-white transition duration-500 ease-in-out hover:scale-125">
-                        <Link to={'/'}>Nanda  .  Meet</Link>
+                        {/* <Link to={'/'}>Nanda  .  Meet</Link> */}
                     </div>
                 </div>
                 <div className="flex items-center text-white w-[200px] justify-between">
