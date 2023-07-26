@@ -1,10 +1,10 @@
-import Footer from './meet/footer'
-import Chat from './meet/chat'
-import { useContext, useEffect, useRef, useState } from "react"
+import Footer from './meet/footer';
+import Chat from './meet/chat';
+import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from 'react-router-dom';
-import SocketContext from '../socketContext'
-import SimplePeer from 'simple-peer'
-
+import SocketContext from '../socketContext';
+import SimplePeer from 'simple-peer';
+import 'webrtc-adapter';
 
 export default function Meeting() {
     const socket = useContext(SocketContext);
@@ -25,16 +25,11 @@ export default function Meeting() {
     const [showMusic, setShowMusic] = useState(true);
     const [onCall, cutCall] = useState(true);
 
-
     useEffect(() => {
         let localStream;
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             localVideoRef.current.srcObject = stream;
             localStream = stream;
-
-            socket.on('receive-signal', (data) => {
-                peer.signal(data);
-            })
 
             socket.on('set-caller', (callerSocketId) => {
                 setInitiator(socket.id === callerSocketId);
@@ -48,37 +43,43 @@ export default function Meeting() {
 
             peer.on('signal', (data) => {
                 socket.emit('send-signal', data, room);
-            })
+            });
 
             socket.on('receive-signal', (data) => {
                 peer.signal(data);
-            })
+            });
 
             peer.on('connect', () => {
-                console.log('Webrtc connection established!');
-            })
+                console.log('WebRTC connection established!');
+            });
 
             peer.on('stream', (remoteStream) => {
                 remoteVideoRef.current.srcObject = remoteStream;
-            })
+            });
 
             peer.on('data', (data) => {
                 console.log('Data received ', data);
-            })
+            });
 
             if (isInitiator) {
-                startCall();
+                // Uncomment the following line to initiate the call
+                // startCall();
             }
 
             return () => {
                 peer.destroy();
-                localStream.getTracks().forEach(track=>track.stop());
-            }
+                localStream.getTracks().forEach(track => track.stop());
+            };
 
-        }).catch(err => { console.log('Unable to handle media devices. With error ', err) })
+        }).catch(err => {
+            console.log('Unable to handle media devices. With error ', err);
+        });
 
-    }, [])
+        if(isInitiator){
+            startCall();
+        }
 
+    }, []);
 
     const startCall = () => {
         peer = new SimplePeer({
@@ -88,30 +89,28 @@ export default function Meeting() {
         });
     };
 
-
-    return (<div className='w-full'>
-        <div className="flex justify-between w-full h-fit">
-            <div className="flex space-x-6 px-6 w-full">
-                <div className='w-full'>
-                    <div ref={remoteVideoRef} className="rounded-2xl w-full">
-                        <video ref={videoRef} className="bg-red-300 w-full rounded-2xl" autoPlay></video>
+    return (
+        <div className='w-full'>
+            <div className="flex justify-between w-full h-fit">
+                <div className="flex space-x-6 px-6 w-full">
+                    <div className='w-full'>
+                        <div className="rounded-2xl w-full">
+                            <video ref={remoteVideoRef} className="bg-red-300 w-full rounded-2xl" autoPlay ></video>
+                        </div>
+                        <Footer showCamera={showCamera} setShowCamera={setShowCamera} showMic={showMic}
+                            setShowMic={setShowMic} showHand={showHand} setShowHand={setShowHand} showPresent={showPresent} setShowPresent={setShowPresent}
+                            showOption={showOption} setShowOption={setShowOption} showBoard={showBoard} setShowBoard={setShowBoard}
+                            showChat={showChat} setShowChat={setShowChat} showMusic={showMusic} setShowMusic={setShowMusic}
+                            onCall={onCall} cutCall={cutCall} />
                     </div>
-                    <Footer showCamera={showCamera} setShowCamera={setShowCamera} showMic={showMic}
-                        setShowMic={setShowMic} showHand={showHand} setShowHand={setShowHand} showPresent={showPresent} setShowPresent={setShowPresent}
-                        showOption={showOption} setShowOption={setShowOption} showBoard={showBoard} setShowBoard={setShowBoard}
-                        showChat={showChat} setShowChat={setShowChat} showMusic={showMusic} setShowMusic={setShowMusic}
-                        onCall={onCall} cutCall={cutCall} />
-                </div>
-                <div className="space-y-4 pb-4">
-                    <div className="bg-blue-200 rounded-2xl p-2">
-                        <video ref={localVideoRef} className="rounded-2xl bg-red-200 " autoPlay></video>
+                    <div className="space-y-4 pb-4">
+                        <div className="bg-blue-200 rounded-2xl p-2">
+                            <video ref={localVideoRef} className="rounded-2xl bg-red-200" autoPlay></video>
+                        </div>
+                        <Chat />
                     </div>
-                    <Chat />
                 </div>
             </div>
         </div>
-
-    </div>
-    )
+    );
 }
-
