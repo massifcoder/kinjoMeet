@@ -53,6 +53,11 @@ io.on('connection', (socket) => {
   socket.on('joinRoom',(room)=>{
     console.log('User joined the room');
     socket.join(room);
+    const roomClients = io.sockets.adapter.rooms.get(room); //getting all the clients inside the room.
+    const [firstSocketId, secondSocketId] = roomClients;
+    const initiatorSocketId = (firstSocketId < secondSocketId) ? firstSocketId : secondSocketId;
+    const callerSocketId = (socket.id === initiatorSocketId) ? socket.id : null;
+    io.to(socket.id).emit('set-caller', callerSocketId);
   })
 
   socket.on('answerCall',(callerId)=>{
@@ -67,6 +72,10 @@ io.on('connection', (socket) => {
   socket.on('chat',(room,msg)=>{
     console.log('Going to send from ',socket.id ,' to ',room);
     io.to(room).emit('msg',msg);
+  })
+
+  socket.on('send-signal',(data,room)=>{
+    io.to(room).emit('receive-signal',data);
   })
 
 });
