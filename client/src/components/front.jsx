@@ -1,49 +1,45 @@
-import { useEffect, useState } from "react"
-// import Header from "./frontComp/header"
-import SideBar from "./frontComp/sideBar"
+import { useContext, useEffect, useState } from "react"
 import MeetStarter from "./frontComp/meetStarter"
 import GetCaller from "./frontComp/getCaller"
+import SocketContext from '../socketContext';
 
-export default function Front(props) {
+export default function Front() {
+    const socket = useContext(SocketContext);
+    const [gettingCall, setGettingCall] = useState(false);
+    const [caller, setCaller] = useState('');
+    const [callRoom, setCallRoom] = useState('');
+    const [callerMail, setCallerMail] = useState('')
 
-    if(!props.socket){
-        console.log('I am not using asocket')
-        return (null)
-    }
+    useEffect(() => {
+        const token = localStorage.getItem('authToken')
+        socket.emit("infoExchange", token);
 
-    const [gettingCall,setGettingCall] = useState(false);
-    const [caller,setCaller] = useState('');
-    const [callRoom,setCallRoom] = useState('');
-    const [callerMail,setCallerMail] = useState('')
+        socket.on('reject', (reply) => {
+            setGettingCall(false);
+        });
 
-    useEffect(()=>{
-        console.log('I am at front')
-        const socket = props.socket;
-        socket.on('getCall',(arg)=>{
-            arg = JSON.parse(arg);
-            console.log(arg);
-            if(arg.call=='true'){
-                setCaller(arg.name);
-                setCallRoom(arg.room);
-                setCallerMail('')
-                setCallerMail(arg.from);
-                setGettingCall(true);
-            }
-            else{
-                setGettingCall(false);
-            }
+        console.log('UseEffect inside')
+        socket.on('getCall', (room,name,caller) => {
+            console.log('Getting call')
+            setCaller(name);
+            setCallRoom(room);
+            setCallerMail(caller);
+            setGettingCall(true);
+
         })
-        socket.on('userInfo',(req)=>{
-            console.log('Front pr hun')
-        })
-    },[])
+
+
+    }, [])
 
     return (
-    <div className="relative w-1/2">
-        <MeetStarter socket={props.socket}/>
-        {gettingCall?<div className="absolute w-[300px] right-10 top-10">
-            <GetCaller socket={props.socket} callerMail={callerMail} callRoom={callRoom} setCallRoom={setCallRoom} gettingCall={gettingCall} setGettingCall={setGettingCall} heading={'Ringing'} caller={caller}/>
-        </div>:null}
-    </div>
+        <div className="relative w-full">
+            <MeetStarter />
+            {gettingCall ? <div className="absolute w-[300px] right-10 top-10">
+                <GetCaller callerMail={callerMail} callRoom={callRoom} setCallRoom={setCallRoom} gettingCall={gettingCall} setGettingCall={setGettingCall} heading={'Ringing'} caller={caller} />
+            </div> : null}
+        </div>
     )
+
+
+
 }

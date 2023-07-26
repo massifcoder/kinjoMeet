@@ -1,8 +1,6 @@
-// import Header from './frontComp/header'
 import MySelf from './meet/myself'
 import Other from './meet/other'
 import Footer from './meet/footer'
-import SideBar from './frontComp/sideBar'
 import Chat from './meet/chat'
 import { useState } from "react"
 import { useParams } from 'react-router-dom';
@@ -23,6 +21,8 @@ export default function Meeting(){
     const [showMusic,setShowMusic] = useState(true)
     const [onCall,cutCall] = useState(true)
     
+    
+
     return (<div className='w-full'>
                 <div className="flex justify-between w-full h-fit">
                     <div className="flex space-x-6 px-6 w-full">

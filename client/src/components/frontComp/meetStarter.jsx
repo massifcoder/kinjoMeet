@@ -1,15 +1,18 @@
-import { useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
+import SocketContext from "../../socketContext";
+import { useNavigate } from "react-router-dom";
 import DoCall from './doCall'
 
-export default function MeetStarter(props) {
-    // const router = useRouter();
+export default function MeetStarter() {
+    const socket = useContext(SocketContext);
+    const history = useNavigate();
     const mailRef = useRef();
     const [isValid, setValid] = useState(false);
-    const [doCall,setDoCall] = useState(false);
-    const [toCall,setToCall] = useState('')
-    const [otherId,setOtherId] = useState('adsf');
+    const [caller, setCaller] = useState('');
+    const [doCall, setDoCall] = useState(false);
+    const [toCall, setToCall] = useState('')
+    const [otherId, setOtherId] = useState('');
 
-    // UI Handling.
     const errorMailInput = (msg) => {
         setValid(true);
         setTimeout(() => {
@@ -20,25 +23,21 @@ export default function MeetStarter(props) {
     }
 
     const handleCallNow = () => {
-        if(mailRef && mailRef.current){
+        if (mailRef && mailRef.current) {
             const mail = mailRef.current.value;
-            const socket = props.socket;
-            const name = 'lalu'
-            const caller = 'bajimail'
-            socket.emit('checkUser',JSON.stringify({mail,name,caller}))
-            socket.on('userInfo',(req)=>{
-                req = JSON.parse(req);
-                if(req.online=='false'){
+            const name = 'Caller'
+            socket.emit('checkUser', mail, name, caller );
+            socket.on('userInfo', (online,busy,id) => {
+                if (online == 'false') {
                     errorMailInput('Offline')
                 }
-                else{
-                    if(req.busy=='true'){
+                else {
+                    if (busy == 'true') {
                         errorMailInput('Busy!')
                     }
-                    else{
+                    else {
                         setToCall(mail);
-                        setOtherId(req.userId);
-                        console.log('User id of the receiver will be ',req.userId)
+                        setOtherId(id);
                         setDoCall(true);
                     }
                 }
@@ -46,8 +45,21 @@ export default function MeetStarter(props) {
         }
     }
 
-    if(doCall){
-        return <DoCall otherId={otherId} toCall={toCall} setDoCall={setDoCall} socket={props.socket}/>
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            history('/');
+        }
+        
+        setCaller(token);
+        return () => {
+            socket.off('userInfo');
+            socket.off('connect');
+        }
+    }, [])
+
+    if (doCall) {
+        return <DoCall otherId={otherId} toCall={toCall} setDoCall={setDoCall} />
     }
 
     return (
@@ -75,7 +87,6 @@ export default function MeetStarter(props) {
                     </div>
                 </div>
             </div>
-            
         </div>
     )
 }

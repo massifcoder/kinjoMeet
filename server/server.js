@@ -19,53 +19,55 @@ const onlineUsers = {};
 const onCallUsers = {};
 
 
-io.on('connection', (socket) => {;
+io.on('connection', (socket) => {
 
-  console.log('A new user connected to server.')
-
-
-  socket.on("infoExchange",(req)=>{
-    const data = JSON.parse(req);
-    onlineUsers[data.mail] = {token:data.token,id:socket.id};
-    console.log(onlineUsers)
+  socket.on("infoExchange",(mail)=>{
+    onlineUsers[mail] = {id:socket.id};
+    console.log('User added to online users ',onlineUsers);
   })
 
-
-  socket.on("checkUser",(req)=>{
-    req = JSON.parse(req);
-    console.log(onlineUsers)
-    const info = onlineUsers[req.mail];
-    if(info==undefined){
-      socket.emit("userInfo",JSON.stringify({online:'false'}))
+  socket.on("checkUser",(mail,name,caller)=>{
+    const recvId = onlineUsers[mail];
+    if(recvId==undefined){
+      socket.emit("userInfo",'false','true','null');
     }
-    else if(onCallUsers[req.mail]){ //){
-      socket.emit("userInfo",JSON.stringify({online:'true',busy:'true'}));
+    else if(onCallUsers[mail] || recvId.id == socket.id){
+      socket.emit("userInfo",'true','true','null');
     }
     else{
-      socket.emit("userInfo",JSON.stringify({online:'true',busy:'false',userId:info.id}));
-      const tk = info.id;
-      io.to(tk).emit('getCall',JSON.stringify({call:'true',room:socket.id,from:req.caller,name:req.name}));
+      socket.emit("userInfo",'true','false',recvId.id);
+      console.log('Call approved',socket.id,recvId.id);
+      io.to(recvId.id).emit('getCall',socket.id,name,caller);
     }
   })
 
-
-  socket.on('cancelCall',(req)=>{
-    const tk = req;
-    console.log('Cancelling call and sending info to ',req);
-    io.to(tk).emit('reject','true');
+  socket.on('cancelCall',(otherId)=>{
+    io.to(otherId).emit('reject','true');
   })
 
-  socket.on('answerCall',(req)=>{
-    const tk = req;
-    io.to(tk).emit('accept','true');
-  })
-
-  socket.on('disconnect', (so) => {
-    console.log('A user disconnected');
-    delete onlineUsers[socket.id];
-    console.log(onlineUsers)
+  socket.on('leaveRoom',(room)=>{
+    console.log('Room left by ',socket.id);
+    socket.leave(room);
   });
 
+  socket.on('joinRoom',(room)=>{
+    console.log('User joined the room');
+    socket.join(room);
+  })
+
+  socket.on('answerCall',(callerId)=>{
+    socket.join(callerId)
+    io.to(callerId).emit('accept',callerId);
+  })
+
+  socket.on('disconnect', () => {
+    delete onlineUsers[socket.id];
+  });
+
+  socket.on('chat',(room,msg)=>{
+    console.log('Going to send from ',socket.id ,' to ',room);
+    io.to(room).emit('msg',msg);
+  })
 
 });
 

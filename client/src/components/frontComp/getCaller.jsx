@@ -1,14 +1,11 @@
 import { Howl, Howler } from 'howler';
-// import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import SocketContext from '../../socketContext';
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
 
 export default function GetCaller(props) {
-
-    useEffect(()=>{
-        props.socket.on('reject',(req)=>{
-            props.setGettingCall(false);
-        })
-    },[])
+    const socket = useContext(SocketContext);
+    const history = useNavigate();
 
     if(!props.gettingCall){
         return (<div className=' m-6'>hi!</div>)
@@ -21,26 +18,26 @@ export default function GetCaller(props) {
 
     const CancelCall = () => {
         sound.pause();
-        props.socket.emit('cancelCall',props.callRoom);
+        console.log('Cancel ko bulata he')
+        socket.emit('cancelCall',props.callRoom);
+        console.log('Rejecting')
         props.setGettingCall(false);
     }
 
     const TakeCall = () => {
-        props.socket.emit('answerCall',props.callRoom);
+        socket.emit('answerCall',props.callRoom);
         sound.pause();
+        history(`/call/${props.callRoom}`)
     }
 
     useEffect(() => {
-        // if (props.gettingCall) {
-        //     sound.play();
-        //     setTimeout(() => {
-        //         CancelCall();
-        //     }, 10000)
-        // }
+        if (props.gettingCall) {
+            sound.play();
+        }
 
-        // return () =>{
-        //     sound.pause();
-        // }
+        return () =>{
+            sound.pause();
+        }
 
     }, [])
 

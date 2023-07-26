@@ -1,11 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import SocketProvider from './socket'
 import App from './App.jsx'
-// import {socket} from './socket.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App socket={socket}/>
-  </React.StrictMode>,
+  <SocketProvider>
+    <App/>
+  </SocketProvider>
 )
