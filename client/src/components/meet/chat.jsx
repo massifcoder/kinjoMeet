@@ -60,7 +60,6 @@ export default function MySelf() {
                 <div className="h-[200px] w-full relative overflow-x-auto">
                     {
                         messages.map((value,index)=>{
-                            console.log(myName)
                             const isLastMessage = index === messages.length - 1;
                             if(value.sender==myName){
                                 return <div key={index} ref={isLastMessage ? lastMessageRef : null} className={`p-2 border-2 relative float-right clear-both bg-purple-300 text-black border-black w-fit my-2 rounded-md px-4`}>{value.msg}</div>

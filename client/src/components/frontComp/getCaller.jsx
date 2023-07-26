@@ -18,9 +18,7 @@ export default function GetCaller(props) {
 
     const CancelCall = () => {
         sound.pause();
-        console.log('Cancel ko bulata he')
         socket.emit('cancelCall',props.callRoom);
-        console.log('Rejecting')
         props.setGettingCall(false);
     }
 

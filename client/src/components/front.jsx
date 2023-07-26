@@ -18,9 +18,7 @@ export default function Front() {
             setGettingCall(false);
         });
 
-        console.log('UseEffect inside')
         socket.on('getCall', (room,name,caller) => {
-            console.log('Getting call')
             setCaller(name);
             setCallRoom(room);
             setCallerMail(caller);

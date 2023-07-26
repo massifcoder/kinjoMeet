@@ -12,7 +12,6 @@ export default function DoCaller(props) {
     })
 
     const CancelCall = () => {
-        console.log(props.otherId);
         socket.emit('cancelCall', props.otherId);
         props.setDoCall(false);
         callRing.pause();
@@ -21,12 +20,10 @@ export default function DoCaller(props) {
     useEffect(() => {
 
         socket.on('reject', (req) => {
-            console.log('Reject called')
             props.setDoCall(false);
         })
 
         socket.on('accept', (room) => {
-            console.log('Call accepted!')
             socket.emit('joinRoom',room);
             history(`/call/${room}`)
         })

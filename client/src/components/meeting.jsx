@@ -1,20 +1,22 @@
-import Footer from './meet/footer';
-import Chat from './meet/chat';
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from 'react-router-dom';
 import SocketContext from '../socketContext';
-import SimplePeer from 'simple-peer';
-import 'webrtc-adapter';
+import Peer from 'peerjs';
+import 'webrtc-adapter'; 
+
+import Footer from './meet/footer';
+import Chat from './meet/chat';
 
 export default function Meeting() {
     const socket = useContext(SocketContext);
     const { room } = useParams();
     const remoteVideoRef = useRef(null);
     const localVideoRef = useRef(null);
+    const peer = useRef(null); // Use a ref to store the Peer instance.
+
     if (room === undefined) {
         return <h1>Loading...</h1>
     }
-    const [isInitiator, setInitiator] = useState(false);
     const [showCamera, setShowCamera] = useState(true);
     const [showMic, setShowMic] = useState(true);
     const [showHand, setShowHand] = useState(true);
@@ -27,65 +29,87 @@ export default function Meeting() {
 
     useEffect(() => {
         let localStream;
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            localVideoRef.current.srcObject = stream;
-            localStream = stream;
 
-            socket.on('set-caller', (callerSocketId) => {
-                setInitiator(socket.id === callerSocketId);
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                localVideoRef.current.srcObject = stream;
+                localStream = stream;
+
+                const peerInstance = new Peer();
+
+                peerInstance.on('open', (id) => {
+                    console.log('PeerJS connection open with ID:', id);
+                });
+
+                peerInstance.on('call', (incomingCall) => {
+                    console.log('Call is coming!',incomingCall);
+                    incomingCall.answer(localStream);
+                    incomingCall.on('stream', (remoteStream) => {
+                        console.log('Stream shuru hua, udhr se.');
+                        remoteVideoRef.current.srcObject = remoteStream;
+                    });
+                    incomingCall.on('data', (data) => {
+                        console.log('Data received ', data);
+                    });
+                });
+
+
+                peer.current = peerInstance;
+
+
+                socket.on('receive-signal', (data) => {
+                    console.log('User has changed the signal,so now I am updating.');
+                    peerInstance.signal(data);
+                });
+
+                peerInstance.on('signal', (data) => {
+                    console.log('Signal is changed and now updating it.');
+                    socket.emit('send-signal', data, room);
+                  });
+                  
+
+                peerInstance.on('connect', () => {
+                    console.log('WebRTC connection established!');
+                });
+
+                peerInstance.on('stream', (remoteStream) => {
+                    console.log('Streaming started by the other person.')
+                    remoteVideoRef.current.srcObject = remoteStream;
+                });
+
+                peerInstance.on('data', (data) => {
+                    console.log('Data received ', data);
+                });
+                console.log("Room id is ",room);
+                console.log('Socket id of the user is ',socket.id);
+                if(room==socket.id){
+                    console.log('Going to initiate the call');
+                    startCall();
+                }
+
+            })
+            .catch(err => {
+                console.log('Unable to handle media devices. With error ', err);
             });
 
-            const peer = new SimplePeer({
-                trickle: false,
-                stream: localStream,
-                initiator: false
-            });
-
-            peer.on('signal', (data) => {
-                socket.emit('send-signal', data, room);
-            });
-
-            socket.on('receive-signal', (data) => {
-                peer.signal(data);
-            });
-
-            peer.on('connect', () => {
-                console.log('WebRTC connection established!');
-            });
-
-            peer.on('stream', (remoteStream) => {
-                remoteVideoRef.current.srcObject = remoteStream;
-            });
-
-            peer.on('data', (data) => {
-                console.log('Data received ', data);
-            });
-
-            if (isInitiator) {
-                // Uncomment the following line to initiate the call
-                // startCall();
+        return () => {
+            if (peer.current) {
+                peer.current.destroy();
             }
-
-            return () => {
-                peer.destroy();
-                localStream.getTracks().forEach(track => track.stop());
-            };
-
-        }).catch(err => {
-            console.log('Unable to handle media devices. With error ', err);
-        });
-
-        if(isInitiator){
-            startCall();
-        }
-
+            localStream.getTracks().forEach(track => track.stop());
+        };
     }, []);
 
     const startCall = () => {
-        peer = new SimplePeer({
-            initiator: true,
-            stream: localVideoRef.current.srcObject,
-            trickle: false,
+        console.log('Start Call Joined')
+        if (!peer.current){
+            console.log('Arey yeah to gali de rha.');
+            return ;
+        }
+
+        const call = peer.current.call(room, localVideoRef.current.srcObject);
+        call.on('stream', (remoteStream) => {
+            remoteVideoRef.current.srcObject = remoteStream;
         });
     };
 
