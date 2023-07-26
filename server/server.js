@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
   socket.on('leaveRoom',(room)=>{
     console.log('Room left by ',socket.id);
     socket.leave(room);
+    io.to(room).emit('leftRoom');
   });
 
   socket.on('present',()=>{
@@ -57,14 +58,30 @@ io.on('connection', (socket) => {
     
   })
 
+  socket.on('giveId',()=>{
+    console.log('Phone aaya he.')
+    io.to(socket.id).emit('returnId');
+  })
+
+  socket.on('gettingId',(id,room)=>{
+    console.log('Yeah dubey ji liye he.');
+    io.to(room).emit('getId',id);
+  })
+
   socket.on('answerCall',(callerId)=>{
     socket.join(callerId)
     io.to(callerId).emit('accept',callerId);
   })
 
   socket.on('disconnect', () => {
-    delete onlineUsers[socket.id];
+    console.log('One person disconnected!')
   });
+
+  socket.on('log-out',(mail)=>{
+    console.log('Someone log out ',mail);
+    delete onlineUsers[mail];
+    console.log(onlineUsers);
+  })
 
   socket.on('chat',(room,msg)=>{
     io.to(room).emit('msg',msg);
@@ -74,6 +91,7 @@ io.on('connection', (socket) => {
     console.log('Signalling started ',socket.id);
     io.to(room).emit('receive-signal',data);
   })
+
 
 });
 

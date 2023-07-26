@@ -1,15 +1,16 @@
 // import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import { useState } from "react"
+import { useContext, useState } from "react"
+import SocketContext from "../../socketContext";
 
 export default function Header() {
+    const socket = useContext(SocketContext);
     const history = useNavigate();
-    const [token,setToken] = useState(localStorage.getItem('authToken'));
 
     const deleteLocal = ()=>{
+        socket.emit('log-out',localStorage.getItem('authToken'));
         localStorage.removeItem('authToken');
         history('/')
-        setToken(null);
     }
 
     return (

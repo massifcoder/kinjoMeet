@@ -5,3 +5,11 @@
 .inputMail{
     color: red;
  }
+
+ .video{
+    background-image: url('/joining.png');
+    background-size: "contain";
+    width: 100%;
+    background-position: "center";
+    background-repeat: "no-repeat";
+ }
