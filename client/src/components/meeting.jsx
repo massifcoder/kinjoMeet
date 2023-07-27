@@ -24,24 +24,33 @@ export default function Meeting() {
     const [showChat, setShowChat] = useState(true);
     const [showMusic, setShowMusic] = useState(true);
     const [onCall, cutCall] = useState(true);
-    let localStream;
+    const [localStream,setLocalStream] = useState(null);
+    const [remoteUserId,setRemoteUserId] = useState(null);
 
     useEffect(() => {
 
         socket.on('leftRoom', () => {
+            socket.emit('log-out', localStorage.getItem('authToken'));
+            console.log('Unmout the product');
+            if (peerInstance.current) {
+                peerInstance.current.destroy();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
             history('/');
         })
 
         const peer = new Peer(socket.id);
         if (room == socket.id) {
-            console.log('I am initiator.')
             socket.emit('giveId');
             socket.on('getId', (id) => {
-                console.log('Get id ', id);
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                     .then((stream) => {
                         localVideoRef.current.srcObject = stream;
-                        localStream = stream;
+                        // localStream = stream;
+                        setLocalStream(stream);
+                        setRemoteUserId(id);
                         const call = peer.call(id, stream);
                         call.on('stream', (remoteStream) => {
                             remoteVideoRef.current.srcObject = remoteStream;
@@ -53,30 +62,28 @@ export default function Meeting() {
             })
         }
         else {
-            console.log('Humko call avegi.');
+            setRemoteUserId(room);
             socket.on('returnId', () => {
                 socket.emit('gettingId', socket.id, room);
-                console.log('Rishta aaya he.')
             });
-            console.log('Phone lagvayi liya he humne ', peer);
             peer.on('call', (call) => {
-                console.log('Call avat he.');
-                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                const isScreenSharing = call.metadata && call.metadata.screenSharing;
+                navigator.mediaDevices.getUserMedia({ video: true, audio: !isScreenSharing })
                     .then((stream) => {
-                        console.log('CA');
                         console.log(stream);
                         localVideoRef.current.srcObject = stream;
-                        localStream = stream;
+                        setLocalStream(stream);
                         call.answer(stream);
                         call.on('stream', (remoteStream) => {
                             remoteVideoRef.current.srcObject = remoteStream;
-                        })
+                        });
                         peerInstance.current = peer;
                     }).catch((err) => {
                         console.log('Failed to get the devices control.', err);
-                    })
-            })
+                    });
+            });
         }
+        
         return () => {
             socket.emit('log-out', localStorage.getItem('authToken'));
             console.log('Unmout the product');
@@ -90,16 +97,64 @@ export default function Meeting() {
     }, []);
 
     const toggleCamera = ()=>{
-        console.log('Toogle press');
         console.log(localStream)
         if(localStream){
-            localStream.getTracks().forEach((track)=>{
+            localStream.getVideoTracks().forEach((track)=>{
                 track.enabled = !track.enabled;
             })
             setShowCamera(!showCamera);
         }
     }
 
+    const toggleMic = ()=>{
+        console.log(localStream)
+        if(localStream){
+            localStream.getAudioTracks().forEach((track)=>{
+                track.enabled = !track.enabled;
+            })
+            setShowMic(!showMic);
+        }
+    }
+
+    const screenShareEnd = async () => {
+        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(videoStream);
+        localVideoRef.current.srcObject = videoStream;
+    };
+  
+
+    const screenShare = async () => {
+        let showPresents = !showPresent;
+        setShowPresent(showPresents);
+        if (showPresents) {
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            stream.getVideoTracks().forEach(track => {
+                track.onended = () => {
+                    screenShareEnd();
+                };
+            });
+            setLocalStream(stream);
+            localVideoRef.current.srcObject = stream;
+    
+            // Modify the line below with the correct user id (the one you want to call)
+            const call = peerInstance.current.call(remoteUserId, stream, { metadata: { screenSharing: true } });
+            call.on('stream', (remoteStream) => {
+                remoteVideoRef.current.srcObject = remoteStream;
+            });
+        } else {
+            const videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setLocalStream(videoStream);
+            localVideoRef.current.srcObject = videoStream;
+    
+            // Modify the line below with the correct user id (the one you want to call)
+            const call = peerInstance.current.call(remoteUserId, videoStream);
+            call.on('stream', (remoteStream) => {
+                remoteVideoRef.current.srcObject = remoteStream;
+            });
+        }
+    };
+    
+    
 
     return (
         <div className='w-full'>
@@ -117,7 +172,7 @@ export default function Meeting() {
                                 <div onClick={toggleCamera} className={`${showCamera ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
                                     <img src={`/${showCamera ? '' : 'no'}camera.png`} alt="call" className="w-10" />
                                 </div>
-                                <div onClick={() => { setShowMic(!showMic) }} className={`${showMic ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} p-3 h-fit w-fit rounded-full`}>
+                                <div onClick={toggleMic} className={`${showMic ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} p-3 h-fit w-fit rounded-full`}>
                                     <img src={`/${showMic ? 'mic' : 'mute'}.png`} alt="call" className="w-10" />
                                 </div>
                                 <div onClick={() => { setShowHand(!showHand) }} className={`${showHand ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
@@ -132,7 +187,7 @@ export default function Meeting() {
                                 <div onClick={() => { setShowMusic(!showMusic) }} className={`${showMusic ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
                                     <img src={`/music.png`} alt="call" className="w-10" />
                                 </div>
-                                <div onClick={() => { setShowPresent(!showPresent) }} className={`${showPresent ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
+                                <div onClick={ screenShare } className={`${showPresent ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
                                     <img src={`/present.png`} alt="call" className="w-10" />
                                 </div>
                                 <div onClick={() => { setShowOption(!showOption) }} className={`${showOption ? 'bg-[#3c4043]' : 'bg-[#ea4335]'} h-fit p-3 w-fit rounded-full`}>
