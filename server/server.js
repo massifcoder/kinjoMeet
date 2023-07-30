@@ -44,13 +44,11 @@ io.on('connection', (socket) => {
   })
 
   socket.on('leaveRoom',(room)=>{
-    console.log('Room left by ',socket.id);
     socket.leave(room);
     io.to(room).emit('leftRoom');
   });
 
   socket.on('present',()=>{
-    console.log('Am present.')
   })
 
   socket.on('joinRoom',(room)=>{
@@ -59,12 +57,10 @@ io.on('connection', (socket) => {
   })
 
   socket.on('giveId',()=>{
-    console.log('Phone aaya he.')
     io.to(socket.id).emit('returnId');
   })
 
   socket.on('gettingId',(id,room)=>{
-    console.log('Yeah dubey ji liye he.');
     io.to(room).emit('getId',id);
   })
 
@@ -74,13 +70,10 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    console.log('One person disconnected!')
   });
 
   socket.on('log-out',(mail)=>{
-    console.log('Someone log out ',mail);
     delete onlineUsers[mail];
-    console.log(onlineUsers);
   })
 
   socket.on('chat',(room,msg)=>{
@@ -88,7 +81,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('send-signal',(data,room)=>{
-    console.log('Signalling started ',socket.id);
     io.to(room).emit('receive-signal',data);
   })
 
@@ -101,5 +93,4 @@ io.on('connection', (socket) => {
 
 const port = 5000;
 server.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
 });

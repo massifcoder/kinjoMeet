@@ -3,7 +3,7 @@ import SocketContext from '../../socketContext'
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export default function MySelf() {
+export default function MySelf(props) {
     const {room} = useParams();
     const history = useNavigate();
     const lastMessageRef = useRef();
@@ -53,7 +53,7 @@ export default function MySelf() {
       
 
     return (
-        <div className="w-[340px] bg-white border-4 p-4 border-purple-700 text-black rounded-2xl">
+        <div className={`${props.showChat ? 'visible' : 'hidden'} z-50 relative w-[340px] bg-white border-4 p-4 border-purple-700 text-black rounded-2xl`}>
             <h1 className="text-center text-purple-700 font-bold text-xl m-2">Chats.</h1>
             <div className="h-0.5 bg-purple-700"></div>
             <div className="p-2 py-4 w-full">
