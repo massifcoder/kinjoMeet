@@ -17,7 +17,7 @@
     "react-router-dom": "^6.14.2",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.1",
-    "tw-elements": "^1.0.0-beta2",
+    "tw-elements": "^1.0.0",
     "vite-plugin-global": "^0.0.1",
     "webrtc-adapter": "^8.2.3"
   },
