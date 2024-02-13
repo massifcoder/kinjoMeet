@@ -25,6 +25,9 @@ Our video calling site operates on a client-server model, utilizing WebRTC for p
 
 ## Technologies Used
 
+![meetImage](https://github.com/massifcoder/kinjoMeet/assets/81623465/7d218046-5c40-4bc0-9b26-253c27de7324)
+
+
 Our video calling site utilizes the following technologies:
 
 - **HTML/CSS/JavaScript**: Frontend development for building the user interface and implementing client-side functionality.
