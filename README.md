@@ -45,6 +45,8 @@ To get started with our video calling site, follow these steps:
 
 ## Future Enhancements
 
+![meet](https://github.com/massifcoder/kinjoMeet/assets/81623465/be5c12fb-4b33-432e-b48b-1fe3d3d2f2fe)
+
 We're continuously working to improve our video calling platform. Some planned enhancements include:
 
 - Support for group video calls with multiple participants.
